@@ -1,3 +1,7 @@
+# Directories to exclude
+/venv
+/Python 3.13
+
 # PlatformIO
 .pioenvs
 .piolibdeps
