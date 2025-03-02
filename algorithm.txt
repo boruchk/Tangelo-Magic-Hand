@@ -12,7 +12,7 @@ Make macros to send specific signal depending on the sensor measurements:
 - mouse click
 - mouse movement
 
-Do we need to implement asyncronous polling?
+Do we need to implement asynchronous polling?
 
 
 CONNECTIVITY:
