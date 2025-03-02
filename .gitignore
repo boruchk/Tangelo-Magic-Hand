@@ -2,12 +2,8 @@
 /venv
 /Python 3.13
 
-# PlatformIO
-.pioenvs
-.piolibdeps
-.clang_complete
-.gcc-flags.json
-.pio
+.un~
+.txt~
 
 # Prerequisites
 *.d
