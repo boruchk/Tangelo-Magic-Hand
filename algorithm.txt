@@ -1,0 +1,25 @@
+Need to be able to track:
+- absolute location
+- absolute orientation
+- when device rotates
+- when device moves
+- speed of rotation
+
+How often do we need to poll to be accurate?
+
+Make macros to send specific signal depending on the sensor measurements:
+- scroll
+- mouse click
+- mouse movement
+
+Do we need to implement asynchronous polling?
+
+
+CONNECTIVITY:
+Bluetooth:
+- I have no idea how such a connection works
+- I assume that we have to establish a connection
+- send messages via that connection
+
+WiFi:
+- Same as bluetooth??
