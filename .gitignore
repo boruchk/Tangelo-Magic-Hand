@@ -1,6 +1,9 @@
 # Directories to exclude
 /venv
 /Python 3.13
+/Arduino_tests
+/adafruit-circuitpython-bundle-py-20250319
+/precompiled-circuitpython-bundle
 
 .un~
 .txt~

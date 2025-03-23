@@ -4,6 +4,7 @@ Need to be able to track:
 - when device rotates
 - when device moves
 - speed of rotation
+- speed of movement (velocity)
 
 How often do we need to poll to be accurate?
 
