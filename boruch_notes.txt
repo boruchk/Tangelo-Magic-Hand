@@ -1,0 +1,72 @@
+https://embeddedcentric.com/lesson-2-ble-profiles-services-characteristics-device-roles-and-network-topology/
+https://punchthrough.com/manage-ble-connection/
+
+https://github.com/espressif/arduino-esp32/blob/master/libraries/BLE/src/BLEServer.h
+
+  BLE sends data as messages called a charactaristic (BLECharacteristic)
+  Each charactaristic optionally has a descriptor (BLE2902) with more info about the charactaristic
+  
+  Breakdown of BLE Hierarchy:
+    Server = this device, which contains (allows for discovery) one or more services
+    Service = Contains related characteristics.
+      HID Service (0x1812)
+    Characteristic = A data point which contains declaration and value attributes.
+    Value = The actual data
+    Declaration = Metadata about the actual data:
+    - Characteristic value UUID, UUID = type of charactaristic could be either a standard Bluetooth-SIG defined UUID (16-bits) or a vendor specific UUID (128-bits)
+    - Characteristic value handle = client needs this to grab the data (like a data address)
+    - Characteristic properties = Lists the GATT operation(s) allowed on the characteristic value:
+      ~ Broadcast
+      ~ Read = client can read
+      ~ Write with no responce = No acknowledgment is sent from the server (saves power but maybe not reliable)
+      ~ Write = expects ack
+      ~ Notify = server sends data (no ack)
+      ~ Indicate = server sends data (yes ack)
+      ~ Authenticated Signed Write = allows the server to verify the authenticity “signature” of the data and confirm its source (requires paring and bonding)
+    Descriptor = Metadata that provides extra information about the characteristic.
+      The second use for the descriptor, which is the most commonly used is to use it as a switch to turn ON/OFF indication and notification (server-initiated updates). This type of descriptors is known as Client Characteristic Configuration Descriptor(CCCD).
+
+  Device sends advertisements to PC (probably with UUID) up to 64 bytes total
+  Device listens for PC Scan or Connection Request
+  Device responds to a Scan Request with a Scan Response (another advert)
+
+
+  Advertisement:
+  - advert interval: use a fast interval (under a few hundred milliseconds) for a short duration (e.g. 30 seconds) at Peripheral power-up, 
+    upon disconnection, or upon a user event. After 30 or more seconds, reduce the advertising interval
+  - peripheral latency: 
+  - supervision timeout: 
+  Most stacks use a default connection interval of under 100 milliseconds and a peripheral latency of 0
+  Make long connection interval and low latency when connecting or sending lots of data, Reduce when in normal running mode
+
+  Transmit power: Change advertising TX power and TX power while in a connection to increase battery life
+    Enable the LE Power Control feature if available.
+
+  If sleeping is not be viable, use longer advertising intervals and/or connection parameters
+
+  Use LE Privacy in which the Peripheral’s advertisement address changes at a configurable interval
+
+  Bonding or application-level authentication can prevent unauthenticated devices from exchanging data with your device
+
+  Filter Accept List: The Peripheral adds the Central to its Filter Accept List after making a connection for the first time
+    prevents unauthorized centrals to connect
+
+
+
+
+See report structure documentation here:
+https://usb.org/document-library/hid-usage-tables-16
+
+usage = 32 bits
+- ID = bits 0-15 of the 4-byte data portion
+- page = bits 16-31 of the data portion
+
+usage describes:
+- controls = state of a device (on/off, enable/disable)
+- collections = group related controls and data together
+- data = remaining information that is passed between a device and the host
+
+
+
+https://github.com/T-vK/ESP32-BLE-Mouse/tree/master
+https://github.com/nkolban/esp32-snippets/issues/230#issuecomment-473135679
