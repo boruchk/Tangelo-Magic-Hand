@@ -1,10 +1,16 @@
-#include "esp_camera.h"
-#include <WiFi.h>
-
 /**
  * Code adapted from arduino example - webservercamera
  * trimmed down for compatibility and lightweight
  */
+ /*
+  * further dependencies:   include/camera_pins.h
+  *                         app_httpd.cpp
+  *                         espressif/arduino-esp32 library (github)
+  *
+  * used by: None. This is overall driver code.
+  */
+#include "esp_camera.h"
+#include <WiFi.h>
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
 

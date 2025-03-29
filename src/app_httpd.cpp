@@ -1,3 +1,19 @@
+/**
+ * This is where things go a little wild
+ * Note that the platformio migration of "esp32-hal-ledc.h" file
+ * is missing a function. Simply go to the github repo for esp32 arduino core
+ * and just friggin copy paste the entire thing
+ *
+ * And if you would be so kind, try to trim down the code
+ * we don exactly have that much space on board
+ */
+
+/*
+ * further dependencies: espressif/arduino-esp32 library, from github.
+ * used by: this is part of the driver code.
+ */
+
+
 
 #include "esp_http_server.h"
 #include "esp_timer.h"

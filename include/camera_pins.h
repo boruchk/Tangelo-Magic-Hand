@@ -1,3 +1,18 @@
+/**
+ * The mapping came with arduino-core lib, but
+ * I was paranoid if the data is outdated/ if
+ * the board manufacturer tried something fancy
+ * with their pinout,
+ * so I verified the mapping manually against XIAO website
+ *
+ * Plz do the same if you want to add fancy camera(s) in the future
+ */
+
+/*
+ * further dependency: None
+ * used by: /src/main.cpp
+ */
+
 #if defined(CAMERA_MODEL_XIAO_ESP32S3)
 #define PWDN_GPIO_NUM  -1
 #define RESET_GPIO_NUM -1

@@ -37,7 +37,7 @@ connect it to actual internet (we need firewall rules for it, which I am too laz
 - standard **2.4GHz** connection, won't work with school wifi. 
 - check the file itself for API endpoints. You can also network-monitor this stuff. 
 to save your time, video is at port ``81``, route ```/stream```. Image is at port ``80``, ``/capture`` 
-- AAAAND the file is friggin humongous(600+ lines). Someone smarter than me plz trim it down further.
+- AAAAND the file is friggin humongous(800+ lines). Someone smarter than me plz trim it down further.
 <br></br>
 [driver code/camera-esp32 pin connection code](src/main.cpp)<br>
 This is the driver code, and maps the pinout from the camera onto the esp32 board.
