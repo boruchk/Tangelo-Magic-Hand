@@ -11,7 +11,7 @@ as the source of computation, and use esp32 devices as data collection. (imo run
 the next problem is that esp32 support on non-arduino idea is poor. The lib for arduino is too big anyways
 so this repository started as an effort to trim-down the extensive esp32 framework from arduino core
 and also make it work specifically on the XIAOesp32S3 board I got from Amazon, which is tiny and relatively cheap.
-ANd that's where I am right now!
+That's where I am right now!
 
 ## Roadmap:
 | progress                                                                                                                | Implemented            |
@@ -38,11 +38,11 @@ connect it to actual internet (we need firewall rules for it, which I am too laz
 - check the file itself for API endpoints. You can also network-monitor this stuff. 
 to save your time, video is at port ``81``, route ```/stream```. Image is at port ``80``, ``/capture`` 
 - AAAAND the file is friggin humongous(800+ lines). Someone smarter than me plz trim it down further.
-<br></br>
+
 [driver code/camera-esp32 pin connection code](src/main.cpp)<br>
 This is the driver code, and maps the pinout from the camera onto the esp32 board.
 If we get a fancier processor (like STM32 or something, and you guessed it! Not cheap!) 
 we wil need to re-route the connection.
-<br></br>
+
 ## Lastly, please note that the arduino core migration to platformio is horribly outdated.
 Plz manually copy-paste the source code should you need any new fancy feature, or use Arduino IDE
