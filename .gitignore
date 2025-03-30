@@ -4,6 +4,7 @@
 /Arduino_tests
 /adafruit-circuitpython-bundle-py-20250319
 /precompiled-circuitpython-bundle
+.idea
 
 .un~
 .txt~
