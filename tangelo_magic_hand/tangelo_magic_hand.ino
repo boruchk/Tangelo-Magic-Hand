@@ -1,9 +1,19 @@
+/* 
+TODO:
+- Figure out how to:
+  - Make long connection interval and low latency when connecting or sending lots of data, Reduce when in normal running mode
+  - Change advertising TX power and TX power while in a connection to increase battery life 
+    Enable the LE Power Control feature if available
+- Make a sleep function that for when device is inactive (if possible)
+  - Make check in loop() that checks for 
+*/
+
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include "BLEHIDDevice.h"
 #include "BLESecurity.h"
-#include "sdkconfig.h"
+
 
 #define MOUSE_LEFT 1
 #define MOUSE_RIGHT 2
@@ -14,10 +24,13 @@
 
 BLEHIDDevice* tangelo;
 BLECharacteristic* inputMouse;
+BLE2902* notificationDescriptor;
 BLEAdvertising* advertising;
+
 
 uint8_t buttonPress = 0;
 bool deviceConnected = false;
+bool shouldStartAdvertising = false;
 
 
 /* 
@@ -75,17 +88,6 @@ uint8_t reportMap[] = {
 
 
 class MySecurityCallbacks: public BLESecurityCallbacks {
-  uint32_t onPassKeyRequest() {
-    // Return the passkey (you can set it to a fixed value or dynamically)
-    Serial.println("Passkey requested, returning key = 123456");
-    return 123456;  // Return a fixed passkey for simplicity
-  }
-
-  void onPassKeyNotify(uint32_t pass_key) {
-    Serial.println("onPassKeyNotify: ");
-    Serial.println(pass_key);
-  }
-
   bool onSecurityRequest() {
     Serial.println("onSecurityRequest");
     deviceConnected = true;
@@ -100,44 +102,64 @@ class MySecurityCallbacks: public BLESecurityCallbacks {
     }
   }
 
+  // Following methods would only be used if we implement higher security that
+  //  requires the user to enter a pin on the client side. I doubt we will 
+  //  implement that (maybe if we install a screen on the device?)
+  void onPassKeyNotify(uint32_t pass_key) {
+    Serial.println("onPassKeyNotify: ");
+    Serial.println(pass_key);
+  }
+
+  uint32_t onPassKeyRequest() {
+    // Return the passkey (you can set it to a fixed value or dynamically)
+    Serial.println("Passkey requested, returning key = 123456");
+    return 123456;  // Return a fixed passkey for simplicity
+  }
+
   bool onConfirmPIN(uint32_t pin) {
     Serial.println("Confirming pin");
     if (pin == 123456) {
       return true;
     }
   }
-
 };
 
 // Callback function that is called whenever a client is connected or disconnected
 class serverCallbacks: public BLEServerCallbacks {
   void onConnect(BLEServer* pServer) {
-    deviceConnected = true;
-    BLE2902* desc = (BLE2902*)inputMouse->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    desc->setNotifications(true);
-    
-    Serial.println("Device connected");
+    deviceConnected = true;    
+    // Stop advertising once we are connected to a client
+    shouldStartAdvertising = false;
     advertising->stop();
     Serial.println("Tangelo stopped advertising");
+    Serial.println("Device connected");
   };
 
   void onDisconnect(BLEServer* pServer) {
-    // start advertising in case it disconnected by mistake (or maybe wait for a bit to prevent going into connect/disconnect loop?)
-    deviceConnected = false;
-    BLE2902* desc = (BLE2902*)inputMouse->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
-    desc->setNotifications(false);
-
-    Serial.println("Device Disconnected!");
+    deviceConnected = false;    
     // Wait 2.5 seconds before advertising again to reconnect
-    delay(2500);
-    advertising->start();
-    Serial.println("Tangelo is now advertising...");
+    // Start advertising in case it disconnected by mistake
+    // delay(2500);
+    notificationDescriptor->setNotifications(false);
+    shouldStartAdvertising = true;
+    Serial.println("Device Disconnected!");
   }
 };
 
+void advertize() {
+  if (shouldStartAdvertising) {
+    shouldStartAdvertising = false;
+    advertising->start();
+    Serial.println("Tangelo is now advertising...");
+  }
+}
+
 
 void move(signed char x, signed char y, signed char vWheel, signed char hWheel) {
-  if (deviceConnected) {
+  // Check if the client is connected and it wants to receive messages from us.
+  // This also ensures that we only send data when the devices are paired and not just connected
+  // We check if the client is ready with getNotifications()
+  if (deviceConnected && notificationDescriptor->getNotifications()) {
     uint8_t mouseMove[5];
     mouseMove[0] = buttonPress;  // Button
     mouseMove[1] = x;            // Move in X
@@ -165,20 +187,40 @@ void click(uint8_t button) {
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(921600);
+
+  // Initilize the BLE environment
   BLEDevice::init("Tangelo Magic Hand");
+  // Set the security callbacks
+  static MySecurityCallbacks secCB;
+  BLEDevice::setSecurityCallbacks(&secCB);
 
   // Set the security level
-  BLESecurity *pSecurity = new BLESecurity();
+  static BLESecurity bleSec;
+  BLESecurity *pSecurity = &bleSec;
   pSecurity->setAuthenticationMode(ESP_LE_AUTH_BOND);
+  pSecurity->setCapability(ESP_IO_CAP_NONE);  // set to ESP_IO_CAP_OUT if we want to make users enter a unique pin to pair
+  pSecurity->setInitEncryptionKey(ESP_BLE_ENC_KEY_MASK | ESP_BLE_ID_KEY_MASK);
+  // Use this insead of the above 3 lines if we want the users to enter a static pin
+  // pSecurity->setStaticPIN(123456);
+  
 
+  // Create the BLE server
   BLEServer* pServer = BLEDevice::createServer();
-  pServer->setCallbacks(new serverCallbacks());
+  // Set the callbacks for when its connected/disconnected
+  static serverCallbacks servCB;
+  pServer->setCallbacks(&servCB);
 
-  tangelo = new BLEHIDDevice(pServer);
+
+  // Set up
+  static BLEHIDDevice bleHidDev(pServer);
+  tangelo = &bleHidDev;
 
   // Create an input report characteristic (for mouse movements: REPORT_ID = 0)
+  // TODO change this for keyboard inputs?
   inputMouse = tangelo->inputReport(0);
+  // Set up the notification descriptor (BLE2902*) for the inputMouse Charactaristic
+  notificationDescriptor = (BLE2902*)inputMouse->getDescriptorByUUID(BLEUUID((uint16_t)0x2902));
 
   // Set up the HID descriptor for a mouse
   tangelo->manufacturer()->setValue("Adafruit-Espressif");
@@ -194,22 +236,25 @@ void setup() {
   );
   tangelo->reportMap((uint8_t*)reportMap, sizeof(reportMap));
 
-  // Start the HID service
+  // Start the BLEHID services (ask the services to start responding to incoming requests - handled by BLE____.h header files)
   tangelo->startServices();
 
   // Start advertising as a BLE HID device
-  BLEAdvertising* advertising = pServer->getAdvertising();
+  advertising = pServer->getAdvertising();
   advertising->setAppearance(HID_MOUSE);  // 0x0210 = generic HID device, 0x0201 = Mouse, 0x0200 = Keyboard
   advertising->addServiceUUID(tangelo->hidService()->getUUID());
-  advertising->start();
 
-  Serial.println("Tangelo is now advertising...");
+  advertising->setMinInterval(0x20);  // Minimum connection interval (in units of 1.25ms) to 25ms
+  advertising->setMaxInterval(0x40);  // Maximum connection interval (in units of 1.25ms) to 50ms
+
+  shouldStartAdvertising = true;
 }
 
 
 signed char x=5, y=5, vWheel=0, hWheel=0;
 
 void loop() {
+  advertize();
   move(x, y, vWheel, hWheel);
   delay(100);
 }
