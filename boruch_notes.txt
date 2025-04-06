@@ -26,9 +26,9 @@ https://github.com/espressif/arduino-esp32/blob/master/libraries/BLE/src/BLEServ
     Descriptor = Metadata that provides extra information about the characteristic.
       The second use for the descriptor, which is the most commonly used is to use it as a switch to turn ON/OFF indication and notification (server-initiated updates). This type of descriptors is known as Client Characteristic Configuration Descriptor(CCCD).
 
-  Device sends advertisements to PC (probably with UUID) up to 64 bytes total
+  Device sends advertisements to PC that it's ready to connect to a client
   Device listens for PC Scan or Connection Request
-  Device responds to a Scan Request with a Scan Response (another advert)
+  Device responds to a Scan Request with a Scan Response (another advert), and the client completes the connection (and pairing/bonding if the client has the capability)
 
 
   Advertisement:
@@ -55,7 +55,12 @@ https://github.com/espressif/arduino-esp32/blob/master/libraries/BLE/src/BLEServ
 
 
 See report structure documentation here:
+This document describes the Human Interface Device (HID) class for use with Universal Serial Bus (USB)
+https://usb.org/sites/default/files/hid1_11.pdf
+
+This document defines constants that can be interpreted by an application to identify the purpose and meaning of a data field in a HID report.
 https://usb.org/document-library/hid-usage-tables-16
+
 
 usage = 32 bits
 - ID = bits 0-15 of the 4-byte data portion
