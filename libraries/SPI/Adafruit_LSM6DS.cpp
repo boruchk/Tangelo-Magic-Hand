@@ -1,29 +1,19 @@
 /*!
  *  @file Adafruit_LSM6DS.cpp Adafruit LSM6DS 6-DoF Accelerometer
  *  and Gyroscope library
- *
- *  @section intro_sec Introduction
- *
- * 	Adafruit invests time and resources providing this open source code,
- *  please support Adafruit and open-source hardware by purchasing products from
- * 	Adafruit!
+ *  Optimized from original https://github.com/adafruit/Adafruit_LSM6DS/blob/master/Adafruit_LSM6DS.cpp
  *
  *  @section dependencies Dependencies
  *  This library depends on the Adafruit BusIO library
- *
  *  This library depends on the Adafruit Unified Sensor library
 
  *  @section author Author
- *
+ *  Adapted from:
  *  Bryan Siepert for Adafruit Industries
  *
  * 	@section license License
  *
  * 	BSD (see license.txt)
- *
- * 	@section  HISTORY
- *
- *     v1.0 - First release
  */
 
 #include "Adafruit_LSM6DS.h"

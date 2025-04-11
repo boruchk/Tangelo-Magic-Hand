@@ -1,10 +1,6 @@
 /*!
  *  @file Adafruit_LSM6DS.h
- *
- *
- * 	Adafruit invests time and resources providing this open source code,
- *      please support Adafruit and open-source hardware by purchasing products
- *from Adafruit!
+ *  Optimized from https://github.com/adafruit/Adafruit_LSM6DS/blob/master/Adafruit_LSM6DS.h
  *
  *	BSD license (see license.txt)
  */

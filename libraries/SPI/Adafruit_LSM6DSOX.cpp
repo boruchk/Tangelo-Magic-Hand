@@ -2,7 +2,9 @@
 /*!
  *  @file Adafruit_LSM6DSOX.cpp
  *  Adafruit LSM6DSOX 6-DoF Accelerometer and Gyroscope library
+ *  Optimized from https://github.com/adafruit/Adafruit_LSM6DS/blob/master/Adafruit_LSM6DSOX.cpp
  *
+ *  Adapted from:
  *  Bryan Siepert for Adafruit Industries
  * 	BSD (see license.txt)
  */
