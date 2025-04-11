@@ -2,9 +2,9 @@
 /venv
 /Python 3.13
 /Arduino_tests
-/adafruit-circuitpython-bundle-py-20250319
-/precompiled-circuitpython-bundle
+/files_to_optimize
 .idea
+.vscode
 
 .un~
 .txt~
