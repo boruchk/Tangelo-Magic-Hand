@@ -263,7 +263,7 @@ void Adafruit_SPIDevice::transfer(uint8_t *buffer, size_t len) {
   }
   return;
 }
-
+  
 /*!
  *    @brief  Transfer (send/receive) one byte over hard/soft SPI, without
  * transaction management

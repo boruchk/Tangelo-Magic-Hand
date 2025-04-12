@@ -108,6 +108,7 @@ bool Adafruit_LSM6DS::begin_SPI(uint8_t cs_pin, SPIClass *theSPI,
                                    SPI_MODE0,             // data mode
                                    theSPI);
   if (!spi_dev->begin()) {
+    Serial.println("Adafruit_LSM6DS::begin_SPI() -> !spi_dev->begin()");
     return false;
   }
 
@@ -136,6 +137,7 @@ bool Adafruit_LSM6DS::begin_SPI(int8_t cs_pin, int8_t sck_pin, int8_t miso_pin,
                                    SPI_BITORDER_MSBFIRST, // bit order
                                    SPI_MODE0);            // data mode
   if (!spi_dev->begin()) {
+    Serial.println("failed spi_dev->begin()");
     return false;
   }
 

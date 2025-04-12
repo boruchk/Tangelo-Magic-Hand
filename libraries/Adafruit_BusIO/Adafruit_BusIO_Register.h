@@ -7,7 +7,6 @@
     (defined(SPI_INTERFACES_COUNT) && (SPI_INTERFACES_COUNT > 0))
 
 #include <Adafruit_GenericDevice.h>
-#include <Adafruit_I2CDevice.h>
 #include <Adafruit_SPIDevice.h>
 
 typedef enum _Adafruit_BusIO_SPIRegType {
@@ -43,23 +42,8 @@ typedef enum _Adafruit_BusIO_SPIRegType {
  */
 class Adafruit_BusIO_Register {
 public:
-  Adafruit_BusIO_Register(Adafruit_I2CDevice *i2cdevice, uint16_t reg_addr,
-                          uint8_t width = 1, uint8_t byteorder = LSBFIRST,
-                          uint8_t address_width = 1);
-
   Adafruit_BusIO_Register(Adafruit_SPIDevice *spidevice, uint16_t reg_addr,
                           Adafruit_BusIO_SPIRegType type, uint8_t width = 1,
-                          uint8_t byteorder = LSBFIRST,
-                          uint8_t address_width = 1);
-
-  Adafruit_BusIO_Register(Adafruit_I2CDevice *i2cdevice,
-                          Adafruit_SPIDevice *spidevice,
-                          Adafruit_BusIO_SPIRegType type, uint16_t reg_addr,
-                          uint8_t width = 1, uint8_t byteorder = LSBFIRST,
-                          uint8_t address_width = 1);
-
-  Adafruit_BusIO_Register(Adafruit_GenericDevice *genericdevice,
-                          uint16_t reg_addr, uint8_t width = 1,
                           uint8_t byteorder = LSBFIRST,
                           uint8_t address_width = 1);
 
@@ -81,7 +65,6 @@ public:
   void println(Stream *s = &Serial);
 
 private:
-  Adafruit_I2CDevice *_i2cdevice;
   Adafruit_SPIDevice *_spidevice;
   Adafruit_GenericDevice *_genericdevice;
   Adafruit_BusIO_SPIRegType _spiregtype;

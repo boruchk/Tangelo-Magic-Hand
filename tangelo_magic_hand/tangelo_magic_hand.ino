@@ -16,11 +16,11 @@ TODO:
 
 
 // TODO Confirm correct pin numbers for SPI
-#define LSM_CS1 14  // esp32 pin #14 - chip select for LSM6DSOX #1
-#define LSM_CS2 32  // esp32 pin #32 - chip select for LSM6DSOX #2
-#define LSM_SCK 5   // esp32 pin #SCK
-#define LSM_MISO 19 // esp32 pin #MI
-#define LSM_MOSI 18 // esp32 pin #MO
+#define LSM_CS1 23  // esp32 pin SDA - chip select for LSM6DSOX #1
+#define LSM_CS2 21  // esp32 pin D21 - chip select for LSM6DSOX #2
+#define LSM_SCK 19  // esp32 pin MISO
+#define LSM_MOSI 16 // esp32 pin D16
+#define LSM_MISO 17 // esp32 pin D17
 
 #define MOUSE_LEFT 1
 #define MOUSE_RIGHT 2
@@ -28,6 +28,7 @@ TODO:
 #define MOUSE_BACK 8
 #define MOUSE_FORWARD 16
 
+signed char MOVE_x=0, MOVE_y=0, vWheel=0, hWheel=0;
 
 BLEHIDDevice* tangelo;
 BLECharacteristic* inputMouse;
@@ -225,8 +226,12 @@ static inline void readSox(Adafruit_LSM6DSOX& sox, const int chipSelect) {
   /* Display the results (rotation is measured in rad/s) */
   Serial.print("\t\tGyro X: ");
   Serial.print(gyro.gyro.x);
+  char temp_x = gyro.gyro.x;
+  if (temp_x>5){MOVE_x=temp_x;}
   Serial.print(" \tY: ");
   Serial.print(gyro.gyro.y);
+  char temp_y = gyro.gyro.y;
+  if (temp_y>5){MOVE_y=temp_y;}
   Serial.print(" \tZ: ");
   Serial.print(gyro.gyro.z);
   Serial.println(" radians/s ");
@@ -238,7 +243,7 @@ static inline void readSox(Adafruit_LSM6DSOX& sox, const int chipSelect) {
 
 
 void setup() {
-  Serial.begin(921600);
+  Serial.begin(115200);
 
   // Battery
   // pinMode(A13, output)
@@ -250,30 +255,41 @@ void setup() {
   // Wakeup signal comes from some pin???
   // esp_sleep_enable_ext0_wakeup(GPIO_NUM_X, LOW); // or HIGH
 
+  // Adafruit_SPIDevice::begin() sets all of these
+  // pinMode(LSM_CS1, OUTPUT);
+  // pinMode(LSM_CS2, OUTPUT);
+  // pinMode(LSM_SCK, OUTPUT);
+  // pinMode(LSM_MISO, INPUT);
+  // pinMode(LSM_MOSI, OUTPUT);
 
   // Set up SPI functionality  
-  if (!sox1.begin_SPI(LSM_CS1, LSM_SCK, LSM_MISO, LSM_MOSI)) {
-    Serial.println("Failed to find LSM6DSOX chip");
-    while(1) delay(10);
+  if (!sox1.begin_SPI(LSM_CS1, LSM_SCK, LSM_MISO, LSM_MOSI, LSM6DSOX_CHIP_ID)) {
+    Serial.println("");
+    Serial.println("Failed to find LSM6DSOX_1 chip");
+    // while(1) delay(10);
   }
-  Serial.println("LSM6DSOX_0 Found!");
+  else {
+    Serial.println("LSM6DSOX_1 Found!");
 
-  sox1.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);   // 2_G, 4_G, 8_G, 16_G
-  Serial.print("Accelerometer range set to: ");
-  Serial.println("+-2G");
+    // Enable accelerometer with 104 Hz data rate, 4G
+    // Enable gyro with 104 Hz data rate, 2000 dps
 
-  sox1.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);  // 125_DPS, 250_DPS, 500_DPS, 1000_DPS, 2000_DPS, 4000_DPS, 
-  Serial.print("Gyro range set to: ");
-  Serial.println("250 degrees/s");
+    // sox1.setAccelRange(LSM6DS_ACCEL_RANGE_2_G);   // 2_G, 4_G, 8_G, 16_G
+    Serial.print("Accelerometer range set to: ");
+    Serial.println(sox1.getAccelRange());
 
-  sox1.setAccelDataRate(LSM6DS_RATE_12_5_HZ);    // SHUTDOWN = 0Hz, 12_5_HZ, 26_HZ, 52_HZ, 104_HZ, 208_HZ, 416_HZ, 833_HZ, 1_66K_HZ, 3_33K_HZ, 6_66K_HZ 
-  Serial.print("Accelerometer data rate set to: ");
-  Serial.println("12.5 Hz");
+    // sox1.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS);  // 125_DPS, 250_DPS, 500_DPS, 1000_DPS, 2000_DPS, 4000_DPS, 
+    Serial.print("Gyro range set to: ");
+    Serial.println(sox1.getGyroRange());
 
-  sox1.setGyroDataRate(LSM6DS_RATE_12_5_HZ);     // SHUTDOWN = 0Hz, 12_5_HZ, 26_HZ, 52_HZ, 104_HZ, 208_HZ, 416_HZ, 833_HZ, 1_66K_HZ, 3_33K_HZ, 6_66K_HZ
-  Serial.print("Gyro data rate set to: ");
-  Serial.println("12.5 Hz");
-  
+    // sox1.setAccelDataRate(LSM6DS_RATE_12_5_HZ);    // SHUTDOWN = 0Hz, 12_5_HZ, 26_HZ, 52_HZ, 104_HZ, 208_HZ, 416_HZ, 833_HZ, 1_66K_HZ, 3_33K_HZ, 6_66K_HZ 
+    Serial.print("Accelerometer data rate set to: ");
+    Serial.println(sox1.getAccelDataRate());
+
+    // sox1.setGyroDataRate(LSM6DS_RATE_12_5_HZ);     // SHUTDOWN = 0Hz, 12_5_HZ, 26_HZ, 52_HZ, 104_HZ, 208_HZ, 416_HZ, 833_HZ, 1_66K_HZ, 3_33K_HZ, 6_66K_HZ
+    Serial.print("Gyro data rate set to: ");
+    Serial.println(sox1.getGyroDataRate());
+  }
 
 
 
@@ -338,10 +354,13 @@ void setup() {
   advertising->setMaxInterval(0x40);  // Maximum connection interval (in units of 1.25ms) to 50ms
 
   shouldStartAdvertising = true;
+  Serial.println("----------------------");
+  Serial.println("BLE Initialized");
+  Serial.println("----------------------");
 }
 
 
-signed char x=5, y=5, vWheel=0, hWheel=0;
+
 
 void loop() {
   advertize();
@@ -350,7 +369,9 @@ void loop() {
   digitalWrite(LSM_CS2, HIGH);
   readSox(sox1, LSM_CS1);
 
-  move(x, y, vWheel, hWheel);
+  move(MOVE_x, MOVE_y, vWheel, hWheel);
+  MOVE_x = 0;
+  MOVE_y = 0;
 
   delay(100);
 }

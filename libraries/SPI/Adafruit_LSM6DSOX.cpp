@@ -22,6 +22,8 @@ bool Adafruit_LSM6DSOX::_init(int32_t sensor_id) {
 
   // make sure we're talking to the right chip
   if (chip_id.read() != LSM6DSOX_CHIP_ID) {
+    Serial.println(chip_id.read(), HEX);
+    Serial.println("Adafruit_LSM6DSOX::_init() -> chip_id.read() != LSM6DSOX_CHIP_ID");
     return false;
   }
   _sensorid_accel = sensor_id;
