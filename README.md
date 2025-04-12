@@ -10,6 +10,10 @@
 
 While our project implements the [arduino-esp32](https://github.com/espressif/arduino-esp32) library with high level code, it is based on the more low level [ESP-idf repo](https://github.com/espressif/esp-idf).
 
+We optimized the BLE header files by cutting down on the features that are not used in our device including (...)
+
+### Put optimized files in the corresponding folders in the "libraries" directory
+
 We create the server, we create the service, create a haracteristic upon the service,\\
 set a value for the characteristic and then ask the service to start responding to incoming requests.
 
@@ -46,6 +50,12 @@ If the corresponding bit is on, then the server can/may send the corresponding p
 For example if the Notifications bit is on, then the server can/may send notifications. The primary purpose of the
 descriptor is to allow a partner (a client) to request that the server actually send notifications or
 indications.
+
+## Communication Protocol
+
+We chose to use the SPI protocol over I2C as it offers higher-speed speed and lower-latency communication, ideal for our application.
+
+We optimized the SPI header files by cutting down on the features that are not used in our device including tempurature sensing and the pedometer.
 
 ## Technical Docs
 
