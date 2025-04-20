@@ -17,6 +17,13 @@
 - It is recommended to use Arduino for the ESP32 Feather Based on recommendations from [Adafruit website](https://learn.adafruit.com/adafruit-huzzah32-esp32-feather/using-with-arduino-ide)
 - You can use the instructions from the [Espressif website](https://docs.espressif.com/projects/arduino-esp32/en/latest/installing.html)
 
+## Compilation
+
+- Partition Scheme
+  - It's recommended to use one of the `No OTA` options (under `Tools`) to avoid having libraries bottlenecked by programmable storage space; statistics are provided below.
+    - Using `No OTA (2MB APP/2MB SPIFFS)`, 54% of programmable storage space.
+    - Using `Default 4MB with spiffs (1.2MB APP/1.5 SPIFFS)`, 87% of programmable space.
+
 ## BLE Technical information (some adopted from [ESP BLE Guide](https://github.com/nkolban/esp32-snippets/blob/master/Documentation/BLE%20C%2B%2B%20Guide.pdf))
 
 While our project implements the [arduino-esp32](https://github.com/espressif/arduino-esp32) library with high level code, it is based on the more low level [ESP-idf repo](https://github.com/espressif/esp-idf).
