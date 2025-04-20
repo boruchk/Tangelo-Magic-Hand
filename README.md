@@ -1,5 +1,16 @@
 # Tangelo-Magic-Hand
 
+## Hardware Set-Up
+
+| esp32 pin         | LSM6DSOX pin |
+| ------------------| ------------ |
+| 3v                | VIN          |
+| GND               | GND          |
+| MISO - clock      | SCL          |
+| D16/RX - data in  | SDA          |
+| D17/TX - data out | GND          |
+| SDA - chip select | CS           |
+
 ## Development Set-Up
 
 - Download this repo to your local machine

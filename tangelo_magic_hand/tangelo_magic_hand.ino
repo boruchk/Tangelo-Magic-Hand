@@ -206,39 +206,41 @@ static inline void sleepWakeup() {
 }
 
 static inline void readSox(Adafruit_LSM6DSOX& sox, const int chipSelect) {
-  // Select the chip
-  digitalWrite(chipSelect, LOW);
+  if (deviceConnected && notificationDescriptor->getNotifications()) {
+    // Select the chip
+    digitalWrite(chipSelect, LOW);
 
-  sensors_event_t accel;
-  sensors_event_t gyro;
-  // TODO change func call to only accept accel and gyro
-  sox.getEvent(&accel, &gyro);
+    sensors_event_t accel;
+    sensors_event_t gyro;
+    // TODO change func call to only accept accel and gyro
+    sox.getEvent(&accel, &gyro);
 
-  /* Display the results (acceleration is measured in m/s^2) */
-  Serial.print("\t\tAccel X: ");
-  Serial.print(accel.acceleration.x);
-  Serial.print(" \tY: ");
-  Serial.print(accel.acceleration.y);
-  Serial.print(" \tZ: ");
-  Serial.print(accel.acceleration.z);
-  Serial.println(" m/s^2 ");
+    /* Display the results (acceleration is measured in m/s^2) */
+    Serial.print("\t\tAccel X: ");
+    Serial.print(accel.acceleration.x);
+    Serial.print(" \tY: ");
+    Serial.print(accel.acceleration.y);
+    Serial.print(" \tZ: ");
+    Serial.print(accel.acceleration.z);
+    Serial.println(" m/s^2 ");
 
-  /* Display the results (rotation is measured in rad/s) */
-  Serial.print("\t\tGyro X: ");
-  Serial.print(gyro.gyro.x);
-  char temp_x = gyro.gyro.x;
-  if (temp_x>5){MOVE_x=temp_x;}
-  Serial.print(" \tY: ");
-  Serial.print(gyro.gyro.y);
-  char temp_y = gyro.gyro.y;
-  if (temp_y>5){MOVE_y=temp_y;}
-  Serial.print(" \tZ: ");
-  Serial.print(gyro.gyro.z);
-  Serial.println(" radians/s ");
-  Serial.println();
+    /* Display the results (rotation is measured in rad/s) */
+    Serial.print("\t\tGyro X: ");
+    Serial.print(gyro.gyro.x);
+    char temp_x = gyro.gyro.x;
+    if (temp_x>5){MOVE_x=temp_x;}
+    Serial.print(" \tY: ");
+    Serial.print(gyro.gyro.y);
+    char temp_y = gyro.gyro.y;
+    if (temp_y>5){MOVE_y=temp_y;}
+    Serial.print(" \tZ: ");
+    Serial.print(gyro.gyro.z);
+    Serial.println(" radians/s ");
+    Serial.println();
 
-  // Deselect the chip
-  digitalWrite(chipSelect, HIGH);
+    // Deselect the chip
+    digitalWrite(chipSelect, HIGH);
+  }
 }
 
 
@@ -257,7 +259,7 @@ void setup() {
 
   // Adafruit_SPIDevice::begin() sets all of these
   // pinMode(LSM_CS1, OUTPUT);
-  // pinMode(LSM_CS2, OUTPUT);
+  pinMode(LSM_CS2, OUTPUT);
   // pinMode(LSM_SCK, OUTPUT);
   // pinMode(LSM_MISO, INPUT);
   // pinMode(LSM_MOSI, OUTPUT);
@@ -373,5 +375,5 @@ void loop() {
   MOVE_x = 0;
   MOVE_y = 0;
 
-  delay(100);
+  delay(10);
 }
