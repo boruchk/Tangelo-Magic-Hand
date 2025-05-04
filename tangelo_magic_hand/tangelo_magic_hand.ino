@@ -30,6 +30,12 @@ TODO:
 
 signed char MOVE_x=0, MOVE_y=0, vWheel=0, hWheel=0;
 
+float previous_time = 0.0f;
+
+float x_degrees = 0.0f;
+float y_degrees = 0.0f;
+float position = 0.0f;
+
 BLEHIDDevice* tangelo;
 BLECharacteristic* inputMouse;
 BLE2902* notificationDescriptor;
@@ -215,6 +221,10 @@ static inline void readSox(Adafruit_LSM6DSOX& sox, const int chipSelect) {
     // TODO change func call to only accept accel and gyro
     sox.getEvent(&accel, &gyro);
 
+    float time = (float) millis() / 1000;
+    float delta_time = time - previous_time;
+    previous_time = time;
+
     /* Display the results (acceleration is measured in m/s^2) */
     Serial.print("\t\tAccel X: ");
     Serial.print(accel.acceleration.x);
@@ -228,11 +238,47 @@ static inline void readSox(Adafruit_LSM6DSOX& sox, const int chipSelect) {
     Serial.print("\t\tGyro X: ");
     Serial.print(gyro.gyro.x);
     char temp_x = gyro.gyro.x;
-    if (temp_x>5){MOVE_x=temp_x;}
+    x_degrees += gyro.gyro.x * delta_time;
+    MOVE_x=temp_x;
+
+    float bound = PI / 4;
+    float corrective_factor = 0.045;
+    float corrected_bound = bound - corrective_factor;
+
+    if (x_degrees >= corrected_bound)
+    {
+        x_degrees = bound;
+        MOVE_x=10;
+    }
+    if (x_degrees <= -corrected_bound)
+    {
+        x_degrees = -bound;
+        MOVE_x=-10;
+    }
+
+    Serial.print("\t");
+    Serial.print(x_degrees);
+
     Serial.print(" \tY: ");
     Serial.print(gyro.gyro.y);
     char temp_y = gyro.gyro.y;
-    if (temp_y>5){MOVE_y=temp_y;}
+    y_degrees += gyro.gyro.y * delta_time;
+    MOVE_y=temp_y;
+
+    if (y_degrees >= corrected_bound)
+    {
+        y_degrees = bound;
+        MOVE_y=10;
+    }
+    if (y_degrees <= -corrected_bound)
+    {
+        y_degrees = -bound;
+        MOVE_y=-10;
+    }
+
+    Serial.print("\t");
+    Serial.print(y_degrees);
+
     Serial.print(" \tZ: ");
     Serial.print(gyro.gyro.z);
     Serial.println(" radians/s ");
