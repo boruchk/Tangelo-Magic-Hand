@@ -28,13 +28,14 @@ TODO:
 #define MOUSE_BACK 8
 #define MOUSE_FORWARD 16
 
+#define BUTTON_PIN 32
+
 signed char MOVE_x=0, MOVE_y=0, vWheel=0, hWheel=0;
 
 float previous_time = 0.0f;
 
 float x_degrees = 0.0f;
 float y_degrees = 0.0f;
-float position = 0.0f;
 
 BLEHIDDevice* tangelo;
 BLECharacteristic* inputMouse;
@@ -226,6 +227,7 @@ static inline void readSox(Adafruit_LSM6DSOX& sox, const int chipSelect) {
     previous_time = time;
 
     /* Display the results (acceleration is measured in m/s^2) */
+    /*
     Serial.print("\t\tAccel X: ");
     Serial.print(accel.acceleration.x);
     Serial.print(" \tY: ");
@@ -233,53 +235,56 @@ static inline void readSox(Adafruit_LSM6DSOX& sox, const int chipSelect) {
     Serial.print(" \tZ: ");
     Serial.print(accel.acceleration.z);
     Serial.println(" m/s^2 ");
+    */
 
     /* Display the results (rotation is measured in rad/s) */
-    Serial.print("\t\tGyro X: ");
+    Serial.print("\t\tGyro: \n");
+    Serial.print("X: ");
     Serial.print(gyro.gyro.x);
     char temp_x = gyro.gyro.x;
     x_degrees += gyro.gyro.x * delta_time;
     MOVE_x=temp_x;
 
-    float bound = PI / 4;
-    float corrective_factor = 0.045;
-    float corrected_bound = bound - corrective_factor;
+    float x_bound = PI / 4;
+    float y_bound = PI / 6;
+    float corrective_factor = 0.035;
 
-    if (x_degrees >= corrected_bound)
+    if (x_degrees >= x_bound - corrective_factor)
     {
-        x_degrees = bound;
+        x_degrees = x_bound;
         MOVE_x=10;
     }
-    if (x_degrees <= -corrected_bound)
+    if (x_degrees <= -x_bound + corrective_factor)
     {
-        x_degrees = -bound;
+        x_degrees = -x_bound;
         MOVE_x=-10;
     }
 
-    Serial.print("\t");
+    Serial.print(" ");
     Serial.print(x_degrees);
 
-    Serial.print(" \tY: ");
+    Serial.print(" Y: ");
     Serial.print(gyro.gyro.y);
     char temp_y = gyro.gyro.y;
     y_degrees += gyro.gyro.y * delta_time;
     MOVE_y=temp_y;
 
-    if (y_degrees >= corrected_bound)
+    if (y_degrees >= y_bound - 0.02)
     {
-        y_degrees = bound;
+        y_degrees = y_bound;
         MOVE_y=10;
     }
-    if (y_degrees <= -corrected_bound)
+    if (y_degrees <= -y_bound + 0.02)
     {
-        y_degrees = -bound;
+        y_degrees = -y_bound;
         MOVE_y=-10;
     }
 
-    Serial.print("\t");
+    Serial.print(" ");
     Serial.print(y_degrees);
 
-    Serial.print(" \tZ: ");
+    
+    Serial.print(" Z: ");
     Serial.print(gyro.gyro.z);
     Serial.println(" radians/s ");
     Serial.println();
@@ -309,6 +314,8 @@ void setup() {
   // pinMode(LSM_SCK, OUTPUT);
   // pinMode(LSM_MISO, INPUT);
   // pinMode(LSM_MOSI, OUTPUT);
+
+  pinMode(BUTTON_PIN, INPUT);    
 
   // Set up SPI functionality  
   if (!sox1.begin_SPI(LSM_CS1, LSM_SCK, LSM_MISO, LSM_MOSI, LSM6DSOX_CHIP_ID)) {
@@ -412,10 +419,17 @@ void setup() {
 
 void loop() {
   advertize();
+
+  if (digitalRead(BUTTON_PIN) == HIGH)
+  {
+      x_degrees = 0.f;
+      y_degrees = 0.f;
+  }
   
   // read from chip 1
   digitalWrite(LSM_CS2, HIGH);
   readSox(sox1, LSM_CS1);
+
 
   move(MOVE_x, MOVE_y, vWheel, hWheel);
   MOVE_x = 0;
