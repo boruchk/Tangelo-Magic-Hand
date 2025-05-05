@@ -3,6 +3,30 @@
 #if !defined(SPI_INTERFACES_COUNT) ||                                          \
     (defined(SPI_INTERFACES_COUNT) && (SPI_INTERFACES_COUNT > 0))
 
+/*!
+ *    @brief  Create a register we access over an I2C Device (which defines the
+ * bus and address)
+ *    @param  i2cdevice The I2CDevice to use for underlying I2C access
+ *    @param  reg_addr The address pointer value for the I2C/SMBus register, can
+ * be 8 or 16 bits
+ *    @param  width    The width of the register data itself, defaults to 1 byte
+ *    @param  byteorder The byte order of the register (used when width is > 1),
+ * defaults to LSBFIRST
+ *    @param  address_width The width of the register address itself, defaults
+ * to 1 byte
+ */
+// Adafruit_BusIO_Register::Adafruit_BusIO_Register(Adafruit_I2CDevice *i2cdevice,
+//                                                  uint16_t reg_addr,
+//                                                  uint8_t width,
+//                                                  uint8_t byteorder,
+//                                                  uint8_t address_width) {
+//   _i2cdevice = i2cdevice;
+//   _spidevice = nullptr;
+//   _addrwidth = address_width;
+//   _address = reg_addr;
+//   _byteorder = byteorder;
+//   _width = width;
+// }
 
 /*!
  *    @brief  Create a register we access over an SPI Device (which defines the
@@ -26,11 +50,63 @@ Adafruit_BusIO_Register::Adafruit_BusIO_Register(Adafruit_SPIDevice *spidevice,
                                                  uint8_t address_width) {
   _spidevice = spidevice;
   _spiregtype = type;
+  // _i2cdevice = nullptr;
   _addrwidth = address_width;
   _address = reg_addr;
   _byteorder = byteorder;
   _width = width;
 }
+
+/*!
+ *    @brief  Create a register we access over an I2C or SPI Device. This is a
+ * handy function because we can pass in nullptr for the unused interface,
+ * allowing libraries to mass-define all the registers
+ *    @param  i2cdevice The I2CDevice to use for underlying I2C access, if
+ * nullptr we use SPI
+ *    @param  spidevice The SPIDevice to use for underlying SPI access, if
+ * nullptr we use I2C
+ *    @param  reg_addr The address pointer value for the I2C/SMBus/SPI register,
+ * can be 8 or 16 bits
+ *    @param  type     The method we use to read/write data to SPI (which is not
+ * as well defined as I2C)
+ *    @param  width    The width of the register data itself, defaults to 1 byte
+ *    @param  byteorder The byte order of the register (used when width is > 1),
+ * defaults to LSBFIRST
+ *    @param  address_width The width of the register address itself, defaults
+ * to 1 byte
+ */
+// Adafruit_BusIO_Register::Adafruit_BusIO_Register(
+//     Adafruit_I2CDevice *i2cdevice, Adafruit_SPIDevice *spidevice,
+//     Adafruit_BusIO_SPIRegType type, uint16_t reg_addr, uint8_t width,
+//     uint8_t byteorder, uint8_t address_width) {
+//   _spidevice = spidevice;
+//   _i2cdevice = i2cdevice;
+//   _spiregtype = type;
+//   _addrwidth = address_width;
+//   _address = reg_addr;
+//   _byteorder = byteorder;
+//   _width = width;
+// }
+
+/*!
+ * @brief Create a register we access over a GenericDevice
+ * @param genericdevice Generic device to use
+ * @param reg_addr Register address we will read/write
+ * @param width Width of the register in bytes (1-4)
+ * @param byteorder Byte order of register data (LSBFIRST or MSBFIRST)
+ * @param address_width Width of the register address in bytes (1 or 2)
+ */
+// Adafruit_BusIO_Register::Adafruit_BusIO_Register(
+//     Adafruit_GenericDevice *genericdevice, uint16_t reg_addr, uint8_t width,
+//     uint8_t byteorder, uint8_t address_width) {
+//   _i2cdevice = nullptr;
+//   _spidevice = nullptr;
+//   _genericdevice = genericdevice;
+//   _addrwidth = address_width;
+//   _address = reg_addr;
+//   _byteorder = byteorder;
+//   _width = width;
+// }
 
 /*!
  *    @brief  Write a buffer of data to the register location
@@ -42,6 +118,9 @@ Adafruit_BusIO_Register::Adafruit_BusIO_Register(Adafruit_SPIDevice *spidevice,
 bool Adafruit_BusIO_Register::write(uint8_t *buffer, uint8_t len) {
   uint8_t addrbuffer[2] = {(uint8_t)(_address & 0xFF),
                            (uint8_t)(_address >> 8)};
+  // if (_i2cdevice) {
+  //   return _i2cdevice->write(buffer, len, true, addrbuffer, _addrwidth);
+  // }
   if (_spidevice) {
     if (_spiregtype == ADDRESSED_OPCODE_BIT0_LOW_TO_WRITE) {
       // very special case!
@@ -66,9 +145,9 @@ bool Adafruit_BusIO_Register::write(uint8_t *buffer, uint8_t len) {
     }
     return _spidevice->write(buffer, len, addrbuffer, _addrwidth);
   }
-  if (_genericdevice) {
-    return _genericdevice->writeRegister(addrbuffer, _addrwidth, buffer, len);
-  }
+  // if (_genericdevice) {
+  //   return _genericdevice->writeRegister(addrbuffer, _addrwidth, buffer, len);
+  // }
   return false;
 }
 
@@ -108,7 +187,6 @@ bool Adafruit_BusIO_Register::write(uint32_t value, uint8_t numbytes) {
  */
 uint32_t Adafruit_BusIO_Register::read(void) {
   if (!read(_buffer, _width)) {
-    Serial.println("v -> chip_id.read() != if (!read(_buffer, _width))");
     return -1;
   }
 
@@ -122,7 +200,7 @@ uint32_t Adafruit_BusIO_Register::read(void) {
       value |= _buffer[i];
     }
   }
-  
+
   return value;
 }
 
@@ -141,6 +219,9 @@ uint32_t Adafruit_BusIO_Register::readCached(void) { return _cached; }
 bool Adafruit_BusIO_Register::read(uint8_t *buffer, uint8_t len) {
   uint8_t addrbuffer[2] = {(uint8_t)(_address & 0xFF),
                            (uint8_t)(_address >> 8)};
+  // if (_i2cdevice) {
+  //   return _i2cdevice->write_then_read(addrbuffer, _addrwidth, buffer, len);
+  // }
   if (_spidevice) {
     if (_spiregtype == ADDRESSED_OPCODE_BIT0_LOW_TO_WRITE) {
       // very special case!
@@ -165,9 +246,9 @@ bool Adafruit_BusIO_Register::read(uint8_t *buffer, uint8_t len) {
     }
     return _spidevice->write_then_read(addrbuffer, _addrwidth, buffer, len);
   }
-  if (_genericdevice) {
-    return _genericdevice->readRegister(addrbuffer, _addrwidth, buffer, len);
-  }
+  // if (_genericdevice) {
+  //   return _genericdevice->readRegister(addrbuffer, _addrwidth, buffer, len);
+  // }
   return false;
 }
 
