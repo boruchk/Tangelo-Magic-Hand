@@ -3,7 +3,6 @@
 #if !defined(SPI_INTERFACES_COUNT) ||                                          \
     (defined(SPI_INTERFACES_COUNT) && (SPI_INTERFACES_COUNT > 0))
 
-
 /*!
  *    @brief  Create a register we access over an SPI Device (which defines the
  * bus and CS pin)
@@ -26,6 +25,7 @@ Adafruit_BusIO_Register::Adafruit_BusIO_Register(Adafruit_SPIDevice *spidevice,
                                                  uint8_t address_width) {
   _spidevice = spidevice;
   _spiregtype = type;
+  // _i2cdevice = nullptr;
   _addrwidth = address_width;
   _address = reg_addr;
   _byteorder = byteorder;
@@ -66,9 +66,6 @@ bool Adafruit_BusIO_Register::write(uint8_t *buffer, uint8_t len) {
     }
     return _spidevice->write(buffer, len, addrbuffer, _addrwidth);
   }
-  if (_genericdevice) {
-    return _genericdevice->writeRegister(addrbuffer, _addrwidth, buffer, len);
-  }
   return false;
 }
 
@@ -108,7 +105,6 @@ bool Adafruit_BusIO_Register::write(uint32_t value, uint8_t numbytes) {
  */
 uint32_t Adafruit_BusIO_Register::read(void) {
   if (!read(_buffer, _width)) {
-    Serial.println("v -> chip_id.read() != if (!read(_buffer, _width))");
     return -1;
   }
 
@@ -122,7 +118,7 @@ uint32_t Adafruit_BusIO_Register::read(void) {
       value |= _buffer[i];
     }
   }
-  
+
   return value;
 }
 
@@ -164,9 +160,6 @@ bool Adafruit_BusIO_Register::read(uint8_t *buffer, uint8_t len) {
       addrbuffer[0] |= 0x80 | 0x40;
     }
     return _spidevice->write_then_read(addrbuffer, _addrwidth, buffer, len);
-  }
-  if (_genericdevice) {
-    return _genericdevice->readRegister(addrbuffer, _addrwidth, buffer, len);
   }
   return false;
 }

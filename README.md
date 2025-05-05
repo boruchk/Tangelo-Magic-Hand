@@ -2,10 +2,22 @@
 
 ## Hardware Set-Up
 
+
 A [Fritzing](https://fritzing.org/) [project file](./docs/tangelo_prototype.fzz) is provided to demonstrate the hardware configuration for this device and allow for further extension.
 Note this project file depends on Adafruit's [Fritzing Library](https://github.com/adafruit/Fritzing-Library).
 
 ![breadboard](./docs/assets/tangelo_prototype_bb.png)
+
+
+| esp32 pin         | LSM6DSOX pin |
+| ------------------| ------------ |
+| 3v                | VIN          |
+| GND               | GND          |
+| MISO - clock      | SCL          |
+| D16/RX - data out | SDA          |
+| D17/TX - data in  | DO           |
+| SDA - chip select | CS           |
+
 
 ## Development Set-Up
 
