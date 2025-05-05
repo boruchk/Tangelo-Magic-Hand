@@ -87,10 +87,7 @@ static inline void readGyro(AS_LSM6DSOX& sox, const int chipSelect) {
     float delta_time = time - previous_time;
     previous_time = time;
 
-
-    Serial.print("x_degrees");
-    Serial.print(x_degrees);
-
+    
     Serial.print("\t\tGyro: \n");
     Serial.print("X: ");
     Serial.print(gyro.gyro.x);
@@ -181,7 +178,7 @@ void loop() {
     readAccel(sox1, LSM_CS1);
   }
 
-  
+
   move(MOVE_x, MOVE_y, vWheel, hWheel);
   MOVE_x = 0;
   MOVE_y = 0;
