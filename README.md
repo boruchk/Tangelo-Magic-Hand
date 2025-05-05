@@ -7,8 +7,8 @@
 | 3v                | VIN          |
 | GND               | GND          |
 | MISO - clock      | SCL          |
-| D16/RX - data in  | SDA          |
-| D17/TX - data out | GND          |
+| D16/RX - data out | SDA          |
+| D17/TX - data in  | DO           |
 | SDA - chip select | CS           |
 
 ## Development Set-Up
