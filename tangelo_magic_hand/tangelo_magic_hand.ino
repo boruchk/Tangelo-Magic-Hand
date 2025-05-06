@@ -25,8 +25,8 @@ TODO:
 #define MOUSE_FORWARD 16
 
 // Gyroscope-related constants
-#define ROT_X_BOUND PI / 4
-#define ROT_Y_BOUND PI / 6
+#define ROT_X_BOUND PI / 5
+#define ROT_Y_BOUND PI / 5
 #define ROT_X_CORRECT 0.035f
 #define ROT_Y_CORRECT 0.02f
 
@@ -34,6 +34,8 @@ TODO:
 // Rename to "mouse", "Button", etc when finishing
 AS_LSM6DSOX sox1;
 AS_LSM6DSOX sox2;
+
+float previous_time = 0.f;
 
 signed char mouse_move_x = 0,
             mouse_move_y = 0,
@@ -91,6 +93,10 @@ static inline void readGyro(AS_LSM6DSOX& sox, const int chipSelect) {
     // Select the chip
     digitalWrite(chipSelect, LOW);
 
+    float time = (float) millis() / 1000;
+    float delta_time = time - previous_time;
+    previous_time = time;
+
     sensors_event_t accel;
     sensors_event_t gyro;
 
@@ -101,15 +107,15 @@ static inline void readGyro(AS_LSM6DSOX& sox, const int chipSelect) {
     Serial.print(gyro.gyro.x);
     Serial.println(" rad/s ");
 
-    float rot_x = gyro.gyro.x * dt / 1000;
+    float rot_x = gyro.gyro.x * delta_time;
     x_radians += rot_x;
-    mouse_move_x = rot_x;
+    mouse_move_x = rot_x * 375;
 
     if (x_radians >= ROT_X_BOUND - ROT_X_CORRECT) {
-        mouse_move_x = 10;
+        mouse_move_x = 15;
     }
     if (x_radians <= -ROT_X_BOUND + ROT_X_CORRECT) {
-        mouse_move_x = -10;
+        mouse_move_x = -15;
     }
 
     Serial.println(x_radians);
@@ -118,17 +124,15 @@ static inline void readGyro(AS_LSM6DSOX& sox, const int chipSelect) {
     Serial.print(gyro.gyro.y);
     Serial.println(" rad/s ");
 
-    float rot_y = gyro.gyro.y * dt / 1000;
+    float rot_y = gyro.gyro.y * delta_time;
     y_radians += rot_y;
-    mouse_move_y = rot_y;
+    mouse_move_y = rot_y * 375;
 
     if (y_radians >= ROT_Y_BOUND - ROT_Y_CORRECT) {
-        y_radians = ROT_Y_BOUND;
-        mouse_move_y = 10;
+        mouse_move_y = 15;
     }
     if (y_radians <= -ROT_Y_BOUND + ROT_Y_CORRECT) {
-        y_radians = -ROT_Y_BOUND;
-        mouse_move_y = -10;
+        mouse_move_y = -15;
     }
 
     Serial.println(y_radians);
