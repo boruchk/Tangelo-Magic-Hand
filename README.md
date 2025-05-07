@@ -1,13 +1,22 @@
 # Tangelo-Magic-Hand
 
-## Hardware Set-Up
+The Tangelo Magic Hand is a bluetooth device designed to act as a mouse, as well as being able to activate macros on computer systems, “smart” devices, and other similar HID-compatible devices.
 
+We aim to achieve
+- An alternative to keyboard/mouse, free your hands and still have intuitive control
+- Accessible to people with disabilities and those with limited mobility
+- Help ease musculoskeletal disorders, overcome dexterity hurdles 
+- Carpal tunnel, Cubital tunnel, etc., assist Parkinson’s, etc.
+- Lower cost, especially compared to other options on the market
+
+Here is a [link](https://docs.google.com/presentation/d/1tcinS4h7PuItlyA79dWSSfzN5xG-6EcUMcvodp_LoMc/edit?usp=sharing) to the full breakdown of our project
+
+## Hardware Set-Up
 
 A [Fritzing](https://fritzing.org/) [project file](./docs/tangelo_prototype.fzz) is provided to demonstrate the hardware configuration for this device and allow for further extension.
 Note this project file depends on Adafruit's [Fritzing Library](https://github.com/adafruit/Fritzing-Library).
 
 ![breadboard](./docs/assets/tangelo_prototype_bb.png)
-
 
 | esp32 pin         | LSM6DSOX pin |
 | ------------------| ------------ |
@@ -17,7 +26,6 @@ Note this project file depends on Adafruit's [Fritzing Library](https://github.c
 | D16/RX - data out | SDA          |
 | D17/TX - data in  | DO           |
 | SDA - chip select | CS           |
-
 
 ## Development Set-Up
 
